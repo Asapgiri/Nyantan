@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Nihility</title>
+
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+        <link rel="stylesheet" href="common.css">
+        <link rel="preconnect" href="https://fonts.gstatic.com">
+        <link href="https://fonts.googleapis.com/css2?family=Shrikhand&amp;family=Montserrat&amp;family=Roboto&amp;display=swap" rel="stylesheet">
+
+    </head>
+    <body class="bg-light">
+        <div class="d-flex flex-column min-vh-100 page-wrapper">
+            <nav class="navbar navbar-expand-md navbar-fixed-top navbar-dark bg-dark">
+                <div class="container-xl">
+                    <a class="navbar-brand news-text" href="/">Nihility</a>
+                    <button class="navbar-toggler collapsed" type="button" data-toggle="collapse" data-target="#navbarsmn" aria-controls="navbarsExample06" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+
+                    <div class="navbar-collapse collapse" id="navbarsmn" style="">
+                        <ul class="navbar-nav mr-auto">
+                            <li class="nav-item active">
+                                <a class="nav-link" href="/">Home</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/translate">Translate</a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link" href="/requests">Request translation</a>
+                            </li>
+                        </ul>
+                        <ul class="navbar-nav my-2 my-md-0">
+                            {{if .Auth.User}}
+                            <ul class="navbar-nav mr-auto">
+                                <li class="nav-item">
+                                    <a class="nav-link" href="/user">{{.Auth.User}}</a>
+                                </li>
+                            </ul>
+                            {{else}}
+                            <ul class="navbar-nav mr-auto">
+                                <li class="nav-item">
+                                    <a class="nav-link" href="/login">Login</a>
+                                </li>
+                            </ul>
+                            {{end}}
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+
+            <main role="main" class="container-xl flex-fill">
+                {{.Main}}
+            </main>
+
+            <footer class="bg-darkwhite footer cs-footer">
+                <div class="bg-dark color-orange" id="hirlevel">
+                    <div class="container-xl collapse show">
+                        <div class="row">
+                            <div class="input-group my-1 col-lg-5">
+                                <button class="btn btn-light" onclick="dontShowAgain()" type="button">Hide</button>
+                            </div>
+                            <div class="input-group my-1 col-lg-7 col-md-12">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text color-orange" id=""><b>Newsletter</b></span>
+                                </div>
+                                <input id="hirdet-email" onkeyup="if (event.key == 'Enter') hirdetesFeliratkoz()" maxlength="254" type="text" class="form-control" placeholder="Email" aria-label="Subscribe to newsletter" aria-describedby="basic-addon2">
+                                <div class="input-group-append">
+                                    <button class="btn btn-light" onclick="hirdetesFeliratkoz()" type="button">Subscribe</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="container-xl p-3">
+                    <div class="row justify-content-center footer-row">
+                        <div class="col-md-4 list-group list-group-flush">
+                            <a href="/" class="list-group-item list-group-item-action h4 underline">Temp</a>
+                            <a href="/" class="list-group-item list-group-item-action">Temp</a>
+                        </div>
+                    </div>
+                </div>
+            </footer>
+
+            <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+            <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+            <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+            <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+            <script src="https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.min.js"></script>
+            <script>
+                $(document).ready(function () {
+                    bsCustomFileInput.init()
+                })
+            </script>
+            <script src="newsletter.js"></script>
+        </div>
+    </body>
+</html>
