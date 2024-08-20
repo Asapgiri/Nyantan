@@ -1,0 +1,21 @@
+canvas {
+    cursor: crosshair;
+    border: 1px solid #40404040;
+}
+
+.canvas-outside-wrapper {
+    display: flex;
+}
+
+.canvas-inside-wrapper {
+    width: 100%;
+    height: 100%;
+}
+
+#editor-canvas {
+    width: 100%;
+}
+
+#edited-img {
+    width: 100%
+}

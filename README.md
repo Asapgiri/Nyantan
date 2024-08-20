@@ -22,4 +22,5 @@ Random manga translation site
 - [ ] Roles
 - [ ] Apis
 - [ ] Proper user auth
+- [x] Lazy load /translations drop down contents trough apis
 

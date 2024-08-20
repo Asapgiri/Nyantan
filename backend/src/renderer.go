@@ -47,7 +47,7 @@ func read_artifact(path string, header http.Header) (string, string) {
     return string(file_read), file_type
 }
 
-func render(w http.ResponseWriter, temp string) {
+func render(w http.ResponseWriter, temp string, dto any) {
     tmp, err := template.ParseFiles(base_template_path)
     if nil != err {
         io.WriteString(w, "Templating error!")
@@ -55,6 +55,7 @@ func render(w http.ResponseWriter, temp string) {
     }
 
     session.Main = temp
+    session.Dto = dto
 
     var tpl bytes.Buffer
     tmp.Execute(&tpl, session)
@@ -65,4 +66,17 @@ func render(w http.ResponseWriter, temp string) {
     }
 
     main.Execute(w, session)
+}
+
+// Prerender does not support session if you don't pass it...
+func pre_render(temp string, dto any) string {
+    var tpl bytes.Buffer
+
+    tmp, err := template.New("Dto").Parse(temp)
+    if nil != err {
+        return err.Error()
+    }
+    tmp.Execute(&tpl, dto)
+
+    return tpl.String()
 }
