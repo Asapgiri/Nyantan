@@ -1,4 +1,4 @@
-<div class="m-2 overflow-auto small row loaded" id="translation-{{.Id}}">
+<div class="m-2 overflow-auto small row loaded" id="translation-{{.TransId}}">
     <strong class="col-md-12">{Non existant toolbar}</strong>
     <h2 class="col-md-12">
         <strong><a href="{{.Link}}">{{.Title}}</a></strong>
@@ -6,66 +6,71 @@
 
     <div class="col-md-6 canvas-outside-wrapper">
         <div class="canvas-inside-wrapper">
-            <img id="editor-img" class="img-fluid" src="{{.Cover}}" hidden>
+            <img id="editor-img" class="img-fluid" src="{{.Image}}" hidden>
             <canvas id="editor-canvas"></canvas>
         </div>
         <!--
         -->
     </div>
-    <div class="col-md-6">
+    <div id="edits-wrapper" class="col-md-6">
         <div class="mb-2 p-2 bg-white rounded box-shadow border border-gray">
             <button hidden id="edit-next" class="btn btn-secondary btn-sm text-light" onclick="edit_next_rect()" style="width: 33%;"><b>Next</b></button>
             <button hidden id="edit-save" class="btn btn-success btn-sm text-light" onclick="edit_save_rect()" style="width: 33%;"><b>Save</b></button>
             <button id="edit-toggle" class="btn btn-info btn-sm text-light" onclick="toggle_edit_mode()" style="width: 100%;"><b>Add</b></button>
         </div>
 
-        <div class="mb-2 p-2 bg-white rounded box-shadow border border-gray">
-            <div>Position: </div>
+        {{range .Edits}}
+        {{$id := .LastUpdate}}
+        <div class="mb-2 p-2 bg-white rounded box-shadow border border-gray" onmouseenter="mouseenter('rect-{{$id}}')" onmouseleave="mouseleave('rect-{{$id}}')" id="rect-{{$id}}" onclick="rect_click('rect-{{$id}}')">
+            <div>Position: {{.Rect}}</div>
 
             <div class="dropdown mt-2">
-                <input value="腹ごなしに少し歩こう" class="form-control dropdown-toggle" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
-                <ul class="dropdown-menu dropdown-menu-dark p-0" aria-labelledby="dropdownMenuLink" style="width: 100%;">
-                    <li><button class="dropdown-item border-top" onclick="document.getElementById('dropdownMenuLink').value = this.innerText">腹ごなしに少し歩こう -- wrong</button></li>
-                    <li><button class="dropdown-item border-top" onclick="document.getElementById('dropdownMenuLink').value = this.innerText">腹ごなしに少し歩こう -- wrong</button></li>
-                    <li><button class="dropdown-item border-top" onclick="document.getElementById('dropdownMenuLink').value = this.innerText">腹ごなしに少し歩こう -- wrong</button></li>
-                    <li><button class="dropdown-item border-top" onclick="document.getElementById('dropdownMenuLink').value = this.innerText">腹ごなしに少し歩こう -- wrong</button></li>
-                    <li><button class="dropdown-item border-top active" onclick="document.getElementById('dropdownMenuLink').value = this.innerText">腹ごなしに少し歩こう</button></li>
-                    <li><button class="dropdown-item border-top" onclick="document.getElementById('dropdownMenuLink').value = this.innerText">腹ごなしに少し歩こう -- wrong</button></li>
-                    <li><button class="dropdown-item border-top" onclick="document.getElementById('dropdownMenuLink').value = this.innerText">腹ごなしに少し歩こう -- wrong</button></li>
-                    <li><button class="dropdown-item border-top" onclick="document.getElementById('dropdownMenuLink').value = this.innerText">腹ごなしに少し歩こう -- wrong</button></li>
-                    <li><button class="dropdown-item border-top" onclick="document.getElementById('dropdownMenuLink').value = this.innerText">腹ごなしに少し歩こう -- wrong</button></li>
+                <input value="{{(index .Original.List .Original.SIndex).Text}}"
+                       class="form-control dropdown-toggle"
+                       id="dropdown-original-{{$id}}"
+                       data-bs-toggle="dropdown"
+                       aria-expanded="false">
+                <ul class="dropdown-menu dropdown-menu-dark p-0" aria-labelledby="dropdown-original-{{$id}}" id="dropdown-original-{{$id}}-dd" style="width: 100%;">
+                    {{range .Original.List}}
+                    <li><button class="dropdown-item border-top{{if .Selected}} active{{end}}" onclick="select_original('dropdown-original-{{$id}}', this.innerText)">{{.Text}}</button></li>
+                    {{end}}
                 </ul>
             </div>
 
             <div class="dropdown mt-2">
-                <input value="Lets walk a little while we fill your stomack" class="form-control dropdown-toggle" id="dropdownMenuLink2" data-bs-toggle="dropdown" aria-expanded="false">
-                <ul class="dropdown-menu dropdown-menu-dark p-0" aria-labelledby="dropdownMenuLink2" style="width: 100%;">
-                    <li><button class="dropdown-item border-top active" onclick="document.getElementById('dropdownMenuLink2').value = this.innerText">Lets walk a little while we fill your stomack</button></li>
-                    <li><button class="dropdown-item border-top" onclick="document.getElementById('dropdownMenuLink2').value = this.innerText">Lets walk a little while we fill your stomack -- wrong</button></li>
-                </ul>
-            </div>
-        </div>
-
-        <div class="mb-2 p-2 bg-white rounded box-shadow border border-gray">
-            <div>Position: </div>
-
-            <div class="dropdown mt-2">
-                <input value="腹ごなしに少し歩こう" class="form-control dropdown-toggle" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
-                <ul class="dropdown-menu dropdown-menu-dark p-0" aria-labelledby="dropdownMenuLink" style="width: 100%;">
-                    <li><button class="dropdown-item border" onclick="document.getElementById('dropdownMenuLink').value = this.innerText">腹ごなしに少し歩こう</button></li>
-                    <li><button class="dropdown-item border" onclick="document.getElementById('dropdownMenuLink').value = this.innerText">腹ごなしに少し歩こう -- wrong</button></li>
-                </ul>
-            </div>
-
-            <div class="dropdown mt-2">
-                <input value="Lets walk a little while we fill your stomack" class="form-control dropdown-toggle" id="dropdownMenuLink2" data-bs-toggle="dropdown" aria-expanded="false">
-                <ul class="dropdown-menu dropdown-menu-dark p-0" aria-labelledby="dropdownMenuLink2" style="width: 100%;">
-                    <li><button class="dropdown-item border active" onclick="document.getElementById('dropdownMenuLink2').value = this.innerText">Lets walk a little while we fill your stomack</button></li>
-                    <li><button class="dropdown-item border" onclick="document.getElementById('dropdownMenuLink2').value = this.innerText">Lets walk a little while we fill your stomack -- wrong</button></li>
+                <input value="{{(index .Translated.List .Translated.SIndex).Text}}" class="form-control dropdown-toggle" id="dropdown-translated-{{$id}}" data-bs-toggle="dropdown" aria-expanded="false">
+                <ul class="dropdown-menu dropdown-menu-dark p-0" aria-labelledby="dropdown-translated-{{$id}}" id="dropdown-translated-{{$id}}-dd" style="width: 100%;">
+                    {{range .Translated.List}}
+                    <li><button class="dropdown-item border-top{{if .Selected}} active{{end}}" onclick="select_translated('dropdown-translated-{{$id}}', this.innerText)">{{.Text}}</button></li>
+                    {{end}}
                 </ul>
             </div>
         </div>
+        {{end}}
+
     </div>
 </div>
 
 <script src="/edit.js"></script>
+<script>
+    var saved_rects = [
+        {{range .Edits}}
+        {
+            date: {{.LastUpdate}},
+            x: {{.Rect.X}},
+            y: {{.Rect.Y}},
+            width:  {{.Rect.Width}},
+            height: {{.Rect.Height}},
+            hover: false,
+            selected: false
+        },
+        {{end}}
+    ]
+    reset_canvas()
+    {{range .Edits}}
+    {{$id := .LastUpdate}}
+    document.getElementById('rect-{{$id}}').addEventListener("focusin", () => select_rect('rect-{{$id}}'))
+    document.getElementById('rect-{{$id}}').addEventListener("focusout", () => deselect_rect('rect-{{$id}}'))
+    {{end}}
+</script>
+

@@ -1,12 +1,27 @@
 package main
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
 
-func translations_list() ([]translation, error) {
+// =====================================================================================================================
+// Listings
+
+func list_translations() ([]translation, error) {
     return Example_translations, nil
 }
 
-func translations_select(id string) (translation, error) {
+func list_edit(translation_id string, page int) ([]edit, error) {
+    _ = translation_id
+    _ = page
+    return Example_edits, nil
+}
+
+// =====================================================================================================================
+// Selects
+
+func select_translations(id string) (translation, error) {
     for _, trans := range Example_translations {
         fmt.Print(trans.Title)
         fmt.Print(" == ")
@@ -16,5 +31,5 @@ func translations_select(id string) (translation, error) {
         }
     }
 
-    return translation{}, nil
+    return translation{}, errors.New("Not found!")
 }

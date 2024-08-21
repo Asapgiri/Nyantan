@@ -1,8 +1,10 @@
 package main
 
 import (
-	"io"
 	"net/http"
+    "io"
+	"strconv"
+	"strings"
 )
 
 type sessioner struct {
@@ -44,7 +46,7 @@ func get_login(w http.ResponseWriter, r *http.Request) {
 
 func get_translate(w http.ResponseWriter, r *http.Request) {
     fil, _ := base_auth_and_render(w, r, "translate.html")
-    translations, _ := translations_list()
+    translations, _ := list_translations()
     render(w, fil, translations)
 }
 
@@ -67,11 +69,15 @@ func unexpected(w http.ResponseWriter, r *http.Request) {
 // =====================================================================================================================
 // "Smart" functios
 
+func base_error_render(w http.ResponseWriter, r *http.Request) {
+    fil, _ := base_auth_and_render(w, r, "not_found.html")
+    render(w, fil, nil)
+}
+
 func get_translation(w http.ResponseWriter, r *http.Request, id string) {
-    selected, err := translations_select(id)
+    selected, err := select_translations(id)
     if nil != err {
-        fil, _ := base_auth_and_render(w, r, "not_found.html")
-        render(w, fil, nil)
+        base_error_render(w, r)
         return
     }
 
@@ -81,14 +87,45 @@ func get_translation(w http.ResponseWriter, r *http.Request, id string) {
 }
 
 func get_editor(w http.ResponseWriter, r *http.Request, id string) {
-    selected, err := translations_select(id)
-    if nil != err {
-        fil, _ := base_auth_and_render(w, r, "not_found.html")
-        render(w, fil, nil)
+    splits := strings.Split(id, "/")
+    print_r(splits)
+    if 2 > len(splits) {
+        print_r("Less than 2")
+        base_error_render(w, r)
         return
     }
 
+    t_id := splits[0]
+    page_index, err := strconv.Atoi(splits[1])
+    if nil != err {
+        base_error_render(w, r)
+        return
+    }
+
+    // FIXME: should be only needed data
+    selected, err := select_translations(t_id)
+    if nil != err {
+        base_error_render(w, r)
+        return
+    }
+
+    edits, err := list_edit(id, page_index)
+    if nil != err {
+        base_error_render(w, r)
+        return
+    }
+    edit_list := edit_list{
+        TransId:    selected.Id,
+        // FIXME: sould be setted with prefixes and paths
+        Title:      selected.Title,
+        Link:       selected.Link,
+        Image:      selected.Cover,
+        Page:       page_index,
+        PageCount:  selected.Pages,
+        Edits:      edits,
+    }
+
     fil, _ := base_auth_and_render(w, r, "editor.html")
-    pre_rendered := pre_render(fil, selected)
+    pre_rendered := pre_render(fil, edit_list)
     render(w, pre_rendered, nil)
 }

@@ -23,4 +23,6 @@ Random manga translation site
 - [ ] Apis
 - [ ] Proper user auth
 - [x] Lazy load /translations drop down contents trough apis
-
+- [ ] Provide proper error messages
+- [ ] Solve TODO-s
+- [ ] Solve FEXME-s

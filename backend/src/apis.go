@@ -6,7 +6,7 @@ import (
 )
 
 func api_translations(w http.ResponseWriter, r *http.Request, id string) {
-    selected, err := translations_select(id)
+    selected, err := select_translations(id)
     if nil != err {
         fil, _ := base_auth_and_render(w, r, "not_found.html")
         render(w, fil, nil)
