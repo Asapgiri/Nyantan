@@ -13,14 +13,14 @@
         </h2>
 
         <strong>Parodies:</strong>
-        {{range .Parodies}}<span class="badge badge-secondary badge-pill">{{.}}</span>{{end}}<br>
+        {{range .Parodies}}<span class="badge bg-secondary me-1">{{.}}</span>{{end}}<br>
         <strong>Characters:</strong>
-        {{range .Characters}}<span class="badge badge-secondary badge-pill">{{.}}</span>{{end}}<br>
+        {{range .Characters}}<span class="badge bg-secondary me-1">{{.}}</span>{{end}}<br>
         <strong>Tags:</strong>
-        {{range .Tags}}<span class="badge badge-secondary badge-pill">{{.}}</span>{{end}}<br>
+        {{range .Tags}}<span class="badge bg-secondary me-1">{{.}}</span>{{end}}<br>
         <strong>Artist:</strong>
-        {{range .Artist}}<span class="badge badge-secondary badge-pill">{{.}}</span>{{end}}<br>
-        <strong>Pages:</strong> <span class="badge badge-secondary badge-pill">{{.Pages}}</span><br>
+        {{range .Artist}}<span class="badge bg-secondary me-1">{{.}}</span>{{end}}<br>
+        <strong>Pages:</strong> <span class="badge bg-secondary me-1">{{.Pages}}</span><br>
 
         <h5 class="mb-1 mt-2"><strong>External links:</strong></h5>
         {{range .Externals}}
@@ -35,7 +35,7 @@
         {{range .Users}}
         <a href="/user/{{.Id}}">@{{.Id}}</a>
         {{range .Roles}}
-        <span class="badge badge-{{.Color}} badge-pill">{{.Name}}</span>
+        <span class="badge bg-{{.Color}}">{{.Name}}</span>
         {{end}}
         <br>
         {{end}}
