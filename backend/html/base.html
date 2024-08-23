@@ -14,14 +14,14 @@
     </head>
     <body class="bg-light">
         <div class="d-flex flex-column min-vh-100 page-wrapper">
-            <nav class="navbar navbar-expand-md navbar-fixed-top navbar-dark bg-dark">
+            <nav class="navbar navbar-expand-md px-2 navbar-fixed-top navbar-dark bg-dark">
                 <a class="navbar-brand news-text" href="/">Nihility</a>
                 <button class="navbar-toggler collapsed" type="button" data-toggle="collapse" data-target="#navbarsmn" aria-controls="navbarsExample06" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
 
                 <div class="navbar-collapse collapse" id="navbarsmn" style="">
-                    <ul class="navbar-nav mr-auto">
+                    <ul class="navbar-nav me-auto">
                         <li class="nav-item active">
                             <a class="nav-link" href="/">Home</a>
                         </li>
@@ -35,13 +35,13 @@
                     </ul>
                     <ul class="navbar-nav my-2 my-md-0">
                         {{if .Auth.User}}
-                        <ul class="navbar-nav mr-auto">
+                        <ul class="navbar-nav me-auto">
                             <li class="nav-item">
                                 <a class="nav-link" href="/user">{{.Auth.User}}</a>
                             </li>
                         </ul>
                         {{else}}
-                        <ul class="navbar-nav mr-auto">
+                        <ul class="navbar-nav me-auto">
                             <li class="nav-item">
                                 <a class="nav-link" href="/login">Login</a>
                             </li>

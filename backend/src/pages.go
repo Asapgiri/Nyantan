@@ -75,7 +75,7 @@ func base_error_render(w http.ResponseWriter, r *http.Request) {
 }
 
 func get_translation(w http.ResponseWriter, r *http.Request, id string) {
-    selected, err := select_translations(id)
+    selected, err := select_translation(id)
     if nil != err {
         base_error_render(w, r)
         return
@@ -86,12 +86,31 @@ func get_translation(w http.ResponseWriter, r *http.Request, id string) {
     render(w, pre_rendered, nil)
 }
 
+func get_editor_list(w http.ResponseWriter, r *http.Request, id string) {
+    edits, err := list_edits(id)
+    if nil != err {
+        base_error_render(w, r)
+        return
+    }
+
+    epl := edit_page_list{
+        TransId: id,
+        Title: id,
+        Link: generate_translation_link(id),
+        PageCount: len(edits),
+        Edits: edits,
+    }
+
+    fil, _ := base_auth_and_render(w, r, "edit-list.html")
+    pre_rendered := pre_render(fil, epl)
+    render(w, pre_rendered, nil)
+}
+
 func get_editor(w http.ResponseWriter, r *http.Request, id string) {
     splits := strings.Split(id, "/")
     print_r(splits)
     if 2 > len(splits) {
-        print_r("Less than 2")
-        base_error_render(w, r)
+        get_editor_list(w, r, id)
         return
     }
 
@@ -103,13 +122,13 @@ func get_editor(w http.ResponseWriter, r *http.Request, id string) {
     }
 
     // FIXME: should be only needed data
-    selected, err := select_translations(t_id)
+    selected, err := select_translation(t_id)
     if nil != err {
         base_error_render(w, r)
         return
     }
 
-    edits, err := list_edit(id, page_index)
+    edits, err := select_edit(id, page_index)
     if nil != err {
         base_error_render(w, r)
         return

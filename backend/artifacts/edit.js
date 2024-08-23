@@ -195,6 +195,12 @@ function save_rect() {
 
     document.getElementById(`rect-${new_rect.date}`).addEventListener("focusin", () => select_rect(`rect-${new_rect.date}`))
     document.getElementById(`rect-${new_rect.date}`).addEventListener("focusout", () => deselect_rect(`rect-${new_rect.date}`))
+
+
+    last_rect = {
+    	from: { x: 0, y: 0},
+    	to:   { x: 0, y: 0}
+    }
 }
 
 function edit_save_rect() {

@@ -1,5 +1,8 @@
 package main
 
+// =====================================================================================================================
+// Translation
+
 type group struct {
     Id      string
     Name    string
@@ -7,7 +10,7 @@ type group struct {
 
 type progress struct {
     Color       string
-    Percentage  string
+    Percentage  int
 }
 
 type role struct {
@@ -48,6 +51,9 @@ type translation struct {
     Externals   []external_link
 }
 
+// =====================================================================================================================
+// Edits
+
 type rectangle struct {
     X       float32
     Y       float32
@@ -61,20 +67,20 @@ type selectable struct {
     Accepter    string
     Selected    bool
     Accepted    bool
-    Date        int
+    Date        int64
 }
 
 type accepter struct {
     SIndex      int
     Accepted    bool
     Accepter    string
-    Date        int
+    Date        int64
     List        []selectable
 }
 
 type edit struct {
     Rect        rectangle
-    LastUpdate  int
+    LastUpdate  int64
     Accepter    string
     Accepted    bool
     Original    accepter
@@ -89,4 +95,25 @@ type edit_list struct {
     Page        int
     PageCount   int
     Edits       []edit
+}
+
+// =====================================================================================================================
+// Edit list
+
+type edit_page_list_item struct {
+    Page        int
+    LastUpdate  int64
+    IImage      string
+    Progress    progress
+    Users       []user
+    Accepter    string
+    Accepted    bool
+}
+
+type edit_page_list struct {
+    TransId     string
+    Title       string
+    Link        string
+    PageCount   int
+    Edits       []edit_page_list_item
 }
