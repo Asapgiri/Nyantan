@@ -15,6 +15,11 @@ var file_types = map[string]string {
     "css":  "text",
 }
 
+var funcMap = template.FuncMap {
+    "inc": func(i int) int {return i + 1},
+    "dec": func(i int) int {return i - 1},
+}
+
 func read_artifact(path string, header http.Header) (string, string) {
     var dir_path string
 
@@ -59,7 +64,7 @@ func Render(w http.ResponseWriter, temp string, dto any) {
 
     var tpl bytes.Buffer
     tmp.Execute(&tpl, session)
-    main, err := template.New("Main").Parse(tpl.String())
+    main, err := template.New("Main").Funcs(funcMap).Parse(tpl.String())
     if nil != err {
         io.WriteString(w, "Templating error 2!" + err.Error())
         return
@@ -72,7 +77,7 @@ func Render(w http.ResponseWriter, temp string, dto any) {
 func Pre_render(temp string, dto any) string {
     var tpl bytes.Buffer
 
-    tmp, err := template.New("Dto").Parse(temp)
+    tmp, err := template.New("Dto").Funcs(funcMap).Parse(temp)
     if nil != err {
         return err.Error()
     }

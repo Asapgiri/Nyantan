@@ -1,6 +1,23 @@
 <div class="m-2 overflow-auto small row loaded" id="translation-{{.TransId}}">
-    <h2 class="col-md-12">
-        <strong><a href="{{.Link}}">{{.Title}}</a></strong>
+    <h2 class="col-md-12 my-2">
+        <div class="btn-toolbar mb-3 justify-content-between" role="toolbar">
+            {{if (gt .Page 0)}}
+            <a type="button" href="{{dec .Page}}" class="btn btn-warning">Previous</a>
+            {{else}}
+            <a type="button" href="#" class="btn btn-warning disabled">Previous</a>
+            {{end}}
+
+            <strong>
+                <a href="{{.Link}}">{{.Title}}</a>
+                <span class="text-muted mx-2 p-1 border">{{.Page}}/{{.PageCount}}</span>
+            </strong>
+
+            {{if (lt .Page .PageCount)}}
+            <a type="button" href="{{inc .Page}}" class="btn btn-success">Next</a>
+            {{else}}
+            <a type="button" href="#" class="btn btn-success disabled">Next</a>
+            {{end}}
+        </div>
     </h2>
 
     <div class="col-md-6 canvas-outside-wrapper">

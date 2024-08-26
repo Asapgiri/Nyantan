@@ -15,7 +15,7 @@ type Hello struct{}
 
 func (h Hello) ServeHTTP(w http.ResponseWriter, r *http.Request) {
     var path = r.URL.Path
-    msg.Printf("Serving request: %s %#v\n", r.Header.Get("X-Forwarded-For"), path)
+    msg.Printf("Serving request: %#v\n", path)
 
     Router(path, w, r)
 }

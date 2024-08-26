@@ -61,10 +61,10 @@ func (l Logger) begin() {
 }
 
 func (l Logger) end(nl ...bool) {
-    if len(nl) > 0 && !nl[0] {
-        fmt.Print(Colors.Default)
-    } else {
+    if 0 == len(nl) || nl[0] {
         fmt.Println(Colors.Default)
+    } else {
+        fmt.Print(Colors.Default)
     }
 }
 

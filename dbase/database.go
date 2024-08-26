@@ -2,8 +2,9 @@ package dbase
 
 import (
 	"errors"
+	"nihility/logger"
+	"nihility/logic"
 	"time"
-    "nihility/logger"
 )
 
 var log = logger.Logger {
@@ -43,7 +44,7 @@ func List_edits(translation_id string) ([]Edit_page_list_item, error) {
         edits[i].Progress = generate_progress(float32(i) / float32(len(edits)))
         edits[i].LastUpdate = int64(i) + time.Now().Unix()
         // FIXME: ...
-        edits[i].IImage = trans.Cover
+        edits[i].IImage = logic.Generate_translation_image_path_original(translation_id, i)
     }
 
     return edits, nil

@@ -146,7 +146,7 @@ func Editor(w http.ResponseWriter, r *http.Request, id string) {
         // FIXME: sould be setted with prefixes and paths
         Title:      selected.Title,
         Link:       selected.Link,
-        Image:      selected.Cover,
+        Image:      logic.Generate_translation_image_path_original(t_id, page_index),
         Page:       page_index,
         PageCount:  selected.Pages,
         Edits:      edits,
