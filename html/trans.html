@@ -1,0 +1,43 @@
+<div class="m-2 overflow-auto small row loaded" id="translation-{{.Id}}">
+    <div class="col-md-12 mb-1">
+        <div class="progress">
+            <div class="progress-bar bg-{{.Progress.Color}}" role="progressbar" style="width: {{.Progress.Percentage}}%;" aria-valuenow="{{.Progress.Percentage}}" aria-valuemin="0" aria-valuemax="100">{{.Progress.Percentage}}%</div>
+        </div>
+    </div>
+    <img class="col-md-3" src="{{.Cover}}">
+    <div class="col-md-9">
+        <h2>
+            <strong><a href="{{.Link}}">{{.Title}}</a></strong>
+            <!-- FIXME: Go to preview page -->
+            <a class="btn btn-info btn-sm float-end text-light" href="/editor/{{.Title}}" style="width: 30%;"><b>Edit</b></a>
+        </h2>
+
+        <strong>Parodies:</strong>
+        {{range .Parodies}}<span class="badge bg-secondary me-1">{{.}}</span>{{end}}<br>
+        <strong>Characters:</strong>
+        {{range .Characters}}<span class="badge bg-secondary me-1">{{.}}</span>{{end}}<br>
+        <strong>Tags:</strong>
+        {{range .Tags}}<span class="badge bg-secondary me-1">{{.}}</span>{{end}}<br>
+        <strong>Artist:</strong>
+        {{range .Artist}}<span class="badge bg-secondary me-1">{{.}}</span>{{end}}<br>
+        <strong>Pages:</strong> <span class="badge bg-secondary me-1">{{.Pages}}</span><br>
+
+        <h5 class="mb-1 mt-2"><strong>External links:</strong></h5>
+        {{range .Externals}}
+        <img src="https://flagsapi.com/{{.Language}}/flat/64.png" style="width: 28px; height: 28px;">
+        <strong>{{.Website}}:</strong>
+        <a href="{{.Link}}" target=”_blank”>{{.Title}}</a>
+        <br>
+        {{end}}
+
+
+        <h5 class="mb-1 mt-2"><strong>Translators:</strong></h5>
+        {{range .Users}}
+        <a href="/user/{{.Id}}">@{{.Id}}</a>
+        {{range .Roles}}
+        <span class="badge bg-{{.Color}}">{{.Name}}</span>
+        {{end}}
+        <br>
+        {{end}}
+    </div>
+</div>
