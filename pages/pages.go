@@ -7,7 +7,6 @@ import (
 	"nihility/logger"
 	"nihility/logic"
 	"strconv"
-	"strings"
 )
 
 var log = logger.Logger {
@@ -38,8 +37,12 @@ func Base_auth_and_render(w http.ResponseWriter, r *http.Request, path string) (
 // Basic functios
 
 func Root(w http.ResponseWriter, r *http.Request) {
-    fil, _ := Base_auth_and_render(w, r, "index.html")
-    Render(w, fil, nil)
+    if "/" == r.URL.Path {
+        fil, _ := Base_auth_and_render(w, r, "index.html")
+        Render(w, fil, nil)
+    } else {
+        Unexpected(w, r)
+    }
 }
 
 func Login(w http.ResponseWriter, r *http.Request) {
@@ -82,8 +85,8 @@ func base_error_render(w http.ResponseWriter, r *http.Request) {
     Render(w, fil, nil)
 }
 
-func Translation(w http.ResponseWriter, r *http.Request, id string) {
-    selected, err := dbase.Select_translation(id)
+func Translation(w http.ResponseWriter, r *http.Request) {
+    selected, err := dbase.Select_translation(r.PathValue("id"))
     if nil != err {
         base_error_render(w, r)
         return
@@ -94,7 +97,8 @@ func Translation(w http.ResponseWriter, r *http.Request, id string) {
     Render(w, pre_rendered, nil)
 }
 
-func Editor_list(w http.ResponseWriter, r *http.Request, id string) {
+func Editor_list(w http.ResponseWriter, r *http.Request) {
+    id := r.PathValue("id")
     edits, err := dbase.List_edits(id)
     if nil != err {
         base_error_render(w, r)
@@ -114,23 +118,24 @@ func Editor_list(w http.ResponseWriter, r *http.Request, id string) {
     Render(w, pre_rendered, nil)
 }
 
-func Editor(w http.ResponseWriter, r *http.Request, id string) {
-    splits := strings.Split(id, "/")
-    log.Println(splits)
-    if 2 > len(splits) {
-        Editor_list(w, r, id)
+func Editor(w http.ResponseWriter, r *http.Request) {
+    id := r.PathValue("id")
+    page := r.PathValue("page")
+
+    log.Println(id, page)
+    if page == "" {
+        Editor_list(w, r)
         return
     }
 
-    t_id := splits[0]
-    page_index, err := strconv.Atoi(splits[1])
+    page_index, err := strconv.Atoi(page)
     if nil != err {
         base_error_render(w, r)
         return
     }
 
     // FIXME: should be only needed data
-    selected, err := dbase.Select_translation(t_id)
+    selected, err := dbase.Select_translation(id)
     if nil != err {
         base_error_render(w, r)
         return
@@ -146,7 +151,7 @@ func Editor(w http.ResponseWriter, r *http.Request, id string) {
         // FIXME: sould be setted with prefixes and paths
         Title:      selected.Title,
         Link:       selected.Link,
-        Image:      logic.Generate_translation_image_path_original(t_id, page_index),
+        Image:      logic.Generate_translation_image_path_original(id, page_index),
         Page:       page_index,
         PageCount:  selected.Pages,
         Edits:      edits,

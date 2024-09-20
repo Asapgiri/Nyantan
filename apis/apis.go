@@ -7,8 +7,8 @@ import (
 	"nihility/pages"
 )
 
-func Translations(w http.ResponseWriter, r *http.Request, id string) {
-    selected, err := dbase.Select_translation(id)
+func Translations(w http.ResponseWriter, r *http.Request) {
+    selected, err := dbase.Select_translation(r.PathValue("id"))
     if nil != err {
         fil, _ := pages.Base_auth_and_render(w, r, "not_found.html")
         pages.Render(w, fil, nil)
