@@ -1,5 +1,14 @@
 package dbase
 
+var Example_users = []user {
+    {
+        Id:         "asapgiri",
+        Name :      "Asa",
+        Groups:     map[string][]string{ "nihility": { "translator", "lector" } },
+        SiteRoles:  []string{ "ADMIN" },
+    },
+}
+
 var Example_translations =  []Translation{
     {
         Id:         "2",
@@ -18,16 +27,18 @@ var Example_translations =  []Translation{
         Progress:   progress{ Color: "info", Percentage: 21 },
         Users:  []user{
             {Id: "asapgiri", Name: "Asapgiri",
-            Roles: []role{
-                {Id: "uploader", Name: "Uploader", Color: "primary"},
-                {Id: "translator", Name: "Translator", Color: "info"},
-                {Id: "proofreader", Name: "Proofreader", Color: "secondary"},
-            }},
+            //Roles: []role{
+            //    {Id: "uploader", Name: "Uploader", Color: "primary"},
+            //    {Id: "translator", Name: "Translator", Color: "info"},
+            //    {Id: "proofreader", Name: "Proofreader", Color: "secondary"},
+            //}
+            },
             {Id: "waster", Name: "Wasted",
-            Roles: []role{
-                {Id: "translator", Name: "Translator", Color: "info"},
-                {Id: "editor", Name: "Editor", Color: "warning"},
-            }},
+            //Roles: []role{
+            //    {Id: "translator", Name: "Translator", Color: "info"},
+            //    {Id: "editor", Name: "Editor", Color: "warning"},
+            //}
+            },
         },
         Externals: []external_link{
         },

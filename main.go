@@ -28,8 +28,11 @@ func main() {
     http.HandleFunc("GET /index.html",  pages.Root)
 
     // Authentications
-    http.HandleFunc("GET /login",       pages.Login)
-    http.HandleFunc("GET /logout",      pages.Logout)
+    http.HandleFunc("GET  /login",      pages.Login)
+    http.HandleFunc("POST /login",      pages.Login)
+    http.HandleFunc("GET  /register",   pages.Register)
+    http.HandleFunc("POST /register",   pages.Register)
+    http.HandleFunc("GET  /logout",     pages.Logout)
 
     // Translation related
     http.HandleFunc("GET /translate",   pages.Translate)

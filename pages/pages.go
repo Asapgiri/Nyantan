@@ -7,6 +7,7 @@ import (
 	"nihility/logger"
 	"nihility/logic"
 	"strconv"
+    "github.com/gorilla/sessions"
 )
 
 var log = logger.Logger {
@@ -21,6 +22,8 @@ type sessioner struct {
     Dto any
 }
 //FIXME: Handle fully separately in every function/session!!
+//var store = sessions.NewCookieStore([]byte(os.Getenv("SESSION_KEY")))
+var store = sessions.NewCookieStore([]byte("lgjkl;asdfhkl;jah;sh"))
 var session sessioner
 
 var artifact_path string = "artifacts/"
@@ -29,6 +32,10 @@ var base_template_path string = html_path + "base.html"
 
 func Base_auth_and_render(w http.ResponseWriter, r *http.Request, path string) (string, string) {
     session.Path = r.URL.Path
+    // TODO: Add request aut header
+    real_session, _ := store.Get(r, "uname")
+    log.Println(real_session)
+    //session.Auth.User = string(real_session.Values["uname"])
     logic.Authenticate(&session.Auth)
     return read_artifact(path, w.Header())
 }
@@ -47,6 +54,47 @@ func Root(w http.ResponseWriter, r *http.Request) {
 
 func Login(w http.ResponseWriter, r *http.Request) {
     fil, _ := Base_auth_and_render(w, r, "login.html")
+    uname := r.FormValue("form[userName]")
+    upass := r.FormValue("form[userPass]")
+
+    if "" != uname {
+        if logic.Auth_login(uname, upass).Id != "" {
+            // FIXME: Store auth headers in database with associated user
+            rsess, _ := store.New(r, "uname")
+            log.Printf("session is: %s\n", rsess.ID)
+            rsess.Values["uname"] = uname
+            rsess.Save(r, w)
+            session.Auth.User = uname
+        } else {
+            session.Auth.Error = "Auth Error"
+        }
+    } else {
+        session.Auth.User = ""
+        session.Auth.Error = ""
+    }
+
+    if "" == session.Auth.User {
+        Render(w, fil, nil)
+    } else {
+        http.Redirect(w, r, "/", http.StatusSeeOther)
+    }
+}
+
+func Register(w http.ResponseWriter, r *http.Request) {
+    fil, _ := Base_auth_and_render(w, r, "login.html")
+    uname := r.FormValue("form[userName]")
+    upass := r.FormValue("form[userPass]")
+
+    if "" != uname {
+        if logic.Auth_register(uname, upass) {
+            session.Auth.User = uname
+        } else {
+            session.Auth.Error = "Cannot Register"
+        }
+    } else {
+        session.Auth.User = ""
+    }
+        session.Auth.Error = ""
 
     if "" == session.Auth.User {
         Render(w, fil, nil)

@@ -20,9 +20,10 @@ type role struct {
 }
 
 type user struct {
-    Id      string
-    Name    string
-    Roles   []role
+    Id          string
+    Name        string
+    Groups      map[string][]string
+    SiteRoles   []string
 }
 
 type external_link struct {

@@ -67,8 +67,8 @@
                         {{range .Users}}
                         <div>
                             <a href="/user/{{.Id}}">@{{.Id}}</a>
-                            {{range .Roles}}
-                            <span class="badge bg-{{.Color}}">{{.Name}}</span>
+                            {{range .Groups}}
+                            <span class="badge bg-{{.Color}}">{{.}}</span>
                             {{end}}
                         </div>
                         {{end}}
