@@ -2,9 +2,9 @@ package main
 
 import (
 	"net/http"
-	"nihility/logger"
-	"nihility/pages"
-    "nihility/dbase"
+	"nyantan/logger"
+	"nyantan/pages"
+    "nyantan/dbase"
 )
 
 var msg = logger.Logger {

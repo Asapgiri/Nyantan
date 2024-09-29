@@ -4,9 +4,9 @@ import (
     "os"
 	"io"
 	"net/http"
-	"nihility/dbase"
-	"nihility/logger"
-	"nihility/logic"
+	"nyantan/dbase"
+	"nyantan/logger"
+	"nyantan/logic"
 	"strconv"
     "github.com/gorilla/sessions"
 )

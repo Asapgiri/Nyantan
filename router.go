@@ -2,8 +2,8 @@ package main
 
 import (
 	"net/http"
-	"nihility/apis"
-	"nihility/pages"
+	"nyantan/apis"
+	"nyantan/pages"
 )
 
 func setup_routes() {

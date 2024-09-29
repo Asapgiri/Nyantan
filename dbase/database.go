@@ -3,7 +3,7 @@ package dbase
 import (
 	"context"
 	"errors"
-	"nihility/logger"
+	"nyantan/logger"
 	"os"
 
 	"go.mongodb.org/mongo-driver/bson"

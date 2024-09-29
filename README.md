@@ -1,4 +1,4 @@
-# Nihility
+# Nyantan
 Random manga translation site
 
 # Inti steps

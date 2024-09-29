@@ -3,8 +3,8 @@ package apis
 import (
 	"io"
 	"net/http"
-	"nihility/dbase"
-	"nihility/pages"
+	"nyantan/dbase"
+	"nyantan/pages"
 )
 
 func Translations(w http.ResponseWriter, r *http.Request) {

@@ -2,8 +2,8 @@ package logic
 
 import (
 	"fmt"
-	"nihility/dbase"
-	"nihility/logger"
+	"nyantan/dbase"
+	"nyantan/logger"
 	"strings"
 	"time"
 )

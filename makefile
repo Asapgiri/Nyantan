@@ -1,4 +1,4 @@
-name=nihility
+name=nyantan
 
 build:
 	go build -o ${name}

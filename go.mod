@@ -1,4 +1,4 @@
-module nihility
+module nyantan
 
 go 1.23.0
 

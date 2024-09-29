@@ -1,6 +1,6 @@
 package logic
 
-import "nihility/dbase"
+import "nyantan/dbase"
 
 
 

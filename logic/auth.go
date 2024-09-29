@@ -1,7 +1,7 @@
 package logic
 
 import (
-	"nihility/dbase"
+	"nyantan/dbase"
 
 	"golang.org/x/crypto/bcrypt"
 )
