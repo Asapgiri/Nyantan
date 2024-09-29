@@ -1,0 +1,5 @@
+{"_id":{"$oid":"66f8af27dccc69f6efbefb9f"},"edit":{"$oid":"66f8ad99dccc69f6efbefb98"},"author":"asapgiri","original":true,"text":"腹ご"}
+{"_id":{"$oid":"66f8b000dccc69f6efbefba0"},"edit":{"$oid":"66f8ad99dccc69f6efbefb98"},"author":"asapgiri","original":true,"text":"なしに"}
+{"_id":{"$oid":"66f8b03bdccc69f6efbefba2"},"edit":{"$oid":"66f8ad99dccc69f6efbefb98"},"author":"asapgiri","original":false,"text":"text"}
+{"_id":{"$oid":"66f8b050dccc69f6efbefba3"},"edit":{"$oid":"66f8ad99dccc69f6efbefb98"},"author":"asapgiri","original":false,"text":"random"}
+{"_id":{"$oid":"66f8b059dccc69f6efbefba4"},"edit":{"$oid":"66f8ad99dccc69f6efbefb98"},"author":"asapgiri","original":false,"text":"selectable"}

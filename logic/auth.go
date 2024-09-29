@@ -1,73 +1,79 @@
 package logic
 
 import (
-    "golang.org/x/crypto/bcrypt"
+	"nihility/dbase"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
-type user struct {
-    Id              string
-    Name            string
-    PasswordHash    string
-    Groups          map[string][]string
-    SiteRoles       []string
-}
-
-var Example_user_auts = []user {
-}
-
 type Auth struct {
-    Error string
-    User  string
-    Roles []string
+    Error       string
+    Username    string
+    Groups      []string
+    Roles       []string
 }
 
 func Authenticate(a *Auth) {
-    //*a = Auth_get_user()
-}
+    if a.Username != "" {
+        user := dbase.User{Id: a.Username}
+        err := user.Find()
+        if err != nil {
+            *a = Auth{}
+            return
+        }
 
-func Auth_get_user() Auth {
-    return Auth{
-        Error: "",
-        User: "",
+        a.Username = user.Id
+        a.Roles = user.SiteRoles
+        a.Error = ""
     }
 }
 
 func Auth_logout() {}
 
-func find_user(id string) user {
-    for _, user := range Example_user_auts {
-        if user.Id == id {
-            return user
-        }
-    }
-    return user{}
-}
-
 func Auth_register(id string, password_clear string) bool {
-    // FIXME: Do the actual database search!
-    if find_user(id).Id != "" {
+    new_user := dbase.User{Id: id}
+
+    if new_user.Find() == nil {
+        log.Println("User exists: " + id)
         return false
     }
 
     pwh, _ := bcrypt.GenerateFromPassword([]byte(password_clear), 0)
-    new_user := user{
+    new_user = dbase.User{
         Id: id,
         PasswordHash: string(pwh),
+        SiteRoles: []string{dbase.Roles.USER},
     }
 
-    // FIXME: Save to database
-    Example_user_auts = append(Example_user_auts, new_user)
-    log.Printf("Registerd with %s:%s\n", new_user.Id, new_user.PasswordHash)
+    new_user.Register()
+    log.Printf("Registerd with %s:%s\n", new_user.Id, string(pwh))
 
     return true
 }
 
-func Auth_login(id string, password_clear string) user {
-    fuser := find_user(id)
+func Auth_login(id string, password_clear string) dbase.User {
+    user := dbase.User{Id: id}
+    err := user.Find()
 
-    if fuser.Id == "" || nil != bcrypt.CompareHashAndPassword([]byte(fuser.PasswordHash), []byte(password_clear)) {
-        return user{}
+    log.Println(user)
+    if err != nil || nil != bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password_clear)) {
+        log.Println("Returnning with error, not user")
+        log.Println(err)
+        return dbase.User{}
     }
 
-    return fuser
+    return user
+}
+
+func User_in_fandom(a Auth, fandom string) bool {
+    user := dbase.User{Id: a.Username}
+    user.Find()
+
+    for _, r := range user.Fandoms() {
+        if r == fandom {
+            return true
+        }
+    }
+
+    return false
 }

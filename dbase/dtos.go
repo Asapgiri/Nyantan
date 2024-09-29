@@ -1,29 +1,41 @@
 package dbase
 
+import (
+	"go.mongodb.org/mongo-driver/bson/primitive"
+)
+
 // =====================================================================================================================
 // Translation
 
-type group struct {
+type Group struct {
     Id      string
     Name    string
 }
 
-type progress struct {
+type TrRole struct {
+    Id          primitive.ObjectID `bson:"_id"`
+    Fandom      string
+    Username    string
+    roles       string
+}
+
+type Progress struct {
     Color       string
     Percentage  int
 }
 
-type role struct {
+type Role struct {
     Id      string
     Name    string
     Color   string
 }
 
-type user struct {
-    Id          string
-    Name        string
-    Groups      map[string][]string
-    SiteRoles   []string
+type User struct {
+    _ID             primitive.ObjectID `bson:"_id"`
+    Id              string `bson:"username"`
+    PasswordHash    string `bson:"passhash"`
+    Name            string
+    SiteRoles       []string
 }
 
 type external_link struct {
@@ -34,9 +46,9 @@ type external_link struct {
 }
 
 type Translation struct {
-    Id          string
-    Date        string
-    Group       group
+    Id          primitive.ObjectID `bson:"_id"`
+    Date        primitive.DateTime
+    Fandom      string
     Title       string
     Tags        []string
     Parodies    []string
@@ -46,75 +58,44 @@ type Translation struct {
     Cover       string
     Link        string
     Visible     bool
-    Views       string
-    Progress    progress
-    Users       []user
+    Views       int
+    Progress    Progress
+    Users       []string
     Externals   []external_link
 }
 
 // =====================================================================================================================
 // Edits
 
-type rectangle struct {
+type Rectangle struct {
     X       float32
     Y       float32
     Width   float32
     Height  float32
 }
 
-type selectable struct {
-    Text        string
-    Author      string
-    Accepter    string
-    Selected    bool
-    Accepted    bool
-    Date        int64
-}
-
-type accepter struct {
-    SIndex      int
-    Accepted    bool
-    Accepter    string
-    Date        int64
-    List        []selectable
-}
-
 type Edit struct {
-    Rect        rectangle
-    LastUpdate  int64
-    Accepter    string
-    Accepted    bool
-    Original    accepter
-    Translated  accepter
+    Id              primitive.ObjectID `bson:"_id"`
+    Fandom          string
+    Author          string
+    Accepter        string
+    Accepted        bool
+    TranslationId   primitive.ObjectID
+    Page            int
+    Rectangle       Rectangle
+    Original        int     // selected
+    Translated      int     // selected
 }
 
-type Edit_list struct {
-    TransId     string
-    Title       string
-    Link        string
-    Image       string
-    Page        int
-    PageCount   int
-    Edits       []Edit
+type Edit_snippet struct {
+    Id              primitive.ObjectID `bson:"_id"`
+    Edit            primitive.ObjectID
+    Author          string
+    Original        bool
+    Text            string
 }
 
-// =====================================================================================================================
-// Edit list
-
-type Edit_page_list_item struct {
-    Page        int
-    LastUpdate  int64
-    IImage      string
-    Progress    progress
-    Users       []user
-    Accepter    string
-    Accepted    bool
-}
-
-type Edit_page_list struct {
-    TransId     string
-    Title       string
-    Link        string
-    PageCount   int
-    Edits       []Edit_page_list_item
+type Edit_combined struct {
+    Edit        Edit
+    Snippets    []Edit_snippet
 }

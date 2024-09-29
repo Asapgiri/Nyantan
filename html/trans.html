@@ -1,4 +1,4 @@
-<div class="m-2 overflow-auto small row loaded" id="translation-{{.Id}}">
+<div class="m-2 overflow-auto small row loaded" id="translation-{{.Id.Hex}}">
     <div class="col-md-12 mb-1">
         <div class="progress">
             <div class="progress-bar bg-{{.Progress.Color}}" role="progressbar" style="width: {{.Progress.Percentage}}%;" aria-valuenow="{{.Progress.Percentage}}" aria-valuemin="0" aria-valuemax="100">{{.Progress.Percentage}}%</div>
@@ -33,7 +33,7 @@
 
         <h5 class="mb-1 mt-2"><strong>Translators:</strong></h5>
         {{range .Users}}
-        <a href="/user/{{.Id}}">@{{.Id}}</a>
+        <a href="/user/{{.}}">@{{.}}</a>
         {{range .Roles}}
         <span class="badge bg-{{.Color}}">{{.Name}}</span>
         {{end}}

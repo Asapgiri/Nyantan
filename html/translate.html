@@ -14,7 +14,7 @@
                 <strong>
                     <div class="row">
                         <div class="col-md-1">Date</div>
-                        <div class="col-md-1">Group</div>
+                        <div class="col-md-1">Fandom</div>
                         <div class="col-md-4">Title</div>
                         <div class="col-md-3">Progress</div>
                         <div class="col-md-3">Translators</div>
@@ -23,13 +23,13 @@
             </li>
 
             {{range .Dto}}
-            <li class="list-group-item list-group-item-action p-2 small searchable cursor-pointer" id="colli-{{.Id}}"
-                data-bs-toggle="collapse" data-bs-target="#collapse-{{.Id}}" aria-expanded="false"
-                aria-controls="collapse-{{.Id}}" onclick="watchInfo({{.Id}});">
+            <li class="list-group-item list-group-item-action p-2 small searchable cursor-pointer" id="colli-{{.Id.Hex}}"
+                data-bs-toggle="collapse" data-bs-target="#collapse-{{.Id.Hex}}" aria-expanded="false"
+                aria-controls="collapse-{{.Id.Hex}}" onclick="watchInfo('{{.Id.Hex}}');">
                 <div class="row">
                     <div class="col-md-1">{{.Date}}</div>
                     <div class="col-md-1">
-                        <a href="/group/{{.Group.Id}}">@{{.Group.Id}}</a>
+                        <a href="/group/{{.Fandom}}">@{{.Fandom}}</a>
                     </div>
                     <div class="col-md-4">
                         <strong><a href="{{.Link}}">{{.Title}}</a></strong>
@@ -52,13 +52,13 @@
 
                     <div class="col-md-3">
                         {{range .Users}}
-                        <a href="/user/{{.Id}}">@{{.Id}}</a>
+                        <a href="/user/{{.}}">@{{.}}</a>
                         {{end}}
                     </div>
                 </div>
             </li>
-            <li class="list-group-item border-dark list-group-item-action p-0 bg-light collapse" id="collapse-{{.Id}}">
-                <div class="m-2 overflow-auto small row" id="translation-{{.Id}}"></div>
+            <li class="list-group-item border-dark list-group-item-action p-0 bg-light collapse" id="collapse-{{.Id.Hex}}">
+                <div class="m-2 overflow-auto small row" id="translation-{{.Id.Hex}}"></div>
             </li>
             {{end}}
 
