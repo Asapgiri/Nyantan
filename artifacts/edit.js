@@ -16,10 +16,15 @@ var last_rect = {
 }
 var scale = 1
 
-canvas.width = img.width
-canvas.height = img.height
+function img_set() {
+    canvas.width = img.width
+    canvas.height = img.height
 
-ctx.drawImage(img, 0, 0)
+    ctx.drawImage(img, 0, 0)
+}
+
+img.addEventListener('load', img_set)
+img_set()
 
 function canvas_mousedown(e) {
     mousedown_cnt++
