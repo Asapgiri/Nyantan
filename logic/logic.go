@@ -110,23 +110,26 @@ func Select_edit(id string, page int) ([]Edit, error) {
             Accepter: "", // TODO
             List: []selectable{},
         }
-        for j, snip := range e.Snippets {
+        o, t := 0, 0
+        for _, snip := range e.Snippets {
             if snip.Original {
                 eret[i].Original.List = append(eret[i].Original.List, selectable{
                     Text: snip.Text,
                     Author: snip.Author,
                     Accepter: "", // TODO
                     Accepted: false, // TODO
-                    Selected: j == eret[i].Original.SIndex,
+                    Selected: o == eret[i].Original.SIndex,
                 })
+                o++
             } else {
                 eret[i].Translated.List = append(eret[i].Translated.List, selectable{
                     Text: snip.Text,
                     Author: snip.Author,
                     Accepter: "", // TODO
                     Accepted: false, // TODO
-                    Selected: j == eret[i].Translated.SIndex,
+                    Selected: t == eret[i].Translated.SIndex,
                 })
+                t++
             }
         }
     }
