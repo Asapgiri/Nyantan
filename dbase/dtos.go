@@ -76,6 +76,9 @@ type Rectangle struct {
 
 type Edit struct {
     Id              primitive.ObjectID `bson:"_id"`
+    Date            primitive.DateTime
+    LastUpdated     primitive.DateTime
+    Index           int
     Fandom          string
     Author          string
     Accepter        string

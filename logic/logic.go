@@ -1,11 +1,15 @@
 package logic
 
 import (
+	"cmp"
 	"fmt"
 	"nyantan/dbase"
 	"nyantan/logger"
+	"slices"
 	"strings"
 	"time"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 var log = logger.Logger {
@@ -53,7 +57,8 @@ func generate_progress(percentage float32) dbase.Progress {
 }
 
 func List_edits(translation_id string) ([]Edit_page_list_item, error) {
-    trans, _ := dbase.Select_translation(translation_id)
+    trans := dbase.Translation{}
+    trans.Select(translation_id)
     edits := make([]Edit_page_list_item, trans.Pages + 1) // +1 for cover
     users := make([]dbase.User, len(trans.Users))
     for i := 0; i < len(users); i++ {
@@ -66,7 +71,7 @@ func List_edits(translation_id string) ([]Edit_page_list_item, error) {
         edits[i].Accepter = ""
         edits[i].Users  = users
         edits[i].Progress = generate_progress(float32(i) / float32(len(edits)))
-        edits[i].LastUpdate = int64(i) + time.Now().Unix()
+        edits[i].LastUpdate = time.Now()
         // FIXME: ...
         edits[i].IImage = Generate_translation_image_path_original(translation_id, i)
     }
@@ -78,13 +83,21 @@ func List_translations(auth Auth) ([]dbase.Translation, error) {
     user := dbase.User{Id: auth.Username}
     user.Find()
 
-    return dbase.List_translations(user.Fandoms())
+    tr := dbase.Translation{}
+    fandoms := user.Fandoms()
+    flist := make([]string, len(fandoms))
+    for i, f := range fandoms {
+        flist[i] = f.Fandom
+    }
+    log.Println(flist)
+    return tr.List(flist)
 }
 
 func Select_edit(id string, page int) ([]Edit, error) {
     var eret []Edit
 
-    trans, _ := dbase.Select_translation(id)
+    trans := dbase.Translation{}
+    trans.Select(id)
     edits, err := dbase.Select_edit(trans.Id, page)
     if nil != err {
         return eret, err
@@ -95,7 +108,11 @@ func Select_edit(id string, page int) ([]Edit, error) {
 
     eret = make([]Edit, len(edits))
     for i, e := range edits {
+        eret[i].Id = e.Edit.Id.Hex()
+        eret[i].LastUpdate = e.Edit.LastUpdated.Time()
+        eret[i].Date = e.Edit.Date.Time()
         eret[i].Rect = e.Edit.Rectangle
+        eret[i].Index = e.Edit.Index
         eret[i].Accepted = e.Edit.Accepted
         eret[i].Accepter = e.Edit.Accepter
         eret[i].Original = accepter{
@@ -134,5 +151,36 @@ func Select_edit(id string, page int) ([]Edit, error) {
         }
     }
 
+    slices.SortFunc(eret, func(i, j Edit) int {
+        return cmp.Compare(i.Index, j.Index)
+    })
+
     return eret, nil
 }
+
+func NewEdit(auth Auth, trId string, page int, edit Edit) error {
+    trans := dbase.Translation{}
+    err := trans.Select(trId)
+    if nil != err {
+        return err
+    }
+
+    newEdit := dbase.Edit{
+        Id: primitive.NewObjectID(),
+        Date: primitive.NewDateTimeFromTime(time.Now()),
+        LastUpdated: primitive.NewDateTimeFromTime(time.Now()),
+        Index: edit.Index,
+        Fandom: trans.Fandom,
+        Author: auth.Username,
+        TranslationId: trans.Id,
+        Page: page,
+        Rectangle: edit.Rect,
+    }
+    log.Printf("Saving: ")
+    log.Println(newEdit)
+    err = newEdit.Add()
+
+    return err
+}
+
+//func newSnippet(auth Auth, edit)

@@ -17,6 +17,12 @@ var mongoDBdatabase = os.Getenv("NYANTAN_DATABASE_NAME")
 var mongo_client *mongo.Client
 var db *mongo.Database
 
+var dbUSERS           *mongo.Collection
+var dbTR_ROLES        *mongo.Collection
+var dbTRANSLATIONS    *mongo.Collection
+var dbEDITS           *mongo.Collection
+var dbEDIT_SNIPPETS   *mongo.Collection
+
 var log = logger.Logger {
     Color: logger.Colors.Purple,
     Pretext: "database",
@@ -64,6 +70,12 @@ func Connect() error {
 	}
 	log.Println("Pinged your deployment. You successfully connected to MongoDB!")
 
+    dbUSERS =         db.Collection("users")
+    dbTR_ROLES =      db.Collection("tr_roles")
+    dbTRANSLATIONS =  db.Collection("translations")
+    dbEDITS =         db.Collection("edits")
+    dbEDIT_SNIPPETS = db.Collection("edit_snippets")
+
     return nil
 }
 
@@ -71,21 +83,21 @@ func Connect() error {
 // Users and Auth
 
 func (user *User) Register() {
-    db.Collection("users").InsertOne(context.TODO(), user)
+    dbUSERS.InsertOne(context.TODO(), user)
 }
 
 func (user *User) Find() error {
     filter := bson.D{{"username", user.Id}}
-    err := db.Collection("users").FindOne(context.TODO(), filter).Decode(&user)
+    err := dbUSERS.FindOne(context.TODO(), filter).Decode(&user)
     if err != nil {
-        log.Println(err)
+        log.Printf("Trying to find user %s, fails with: %s", user.Id, err)
         return err
     }
     return nil
 }
 
 func (user *User) Update() error {
-    _, err := db.Collection("users").UpdateByID(context.TODO(), user._ID, user)
+    _, err := dbUSERS.UpdateByID(context.TODO(), user._ID, user)
     if err != nil {
         log.Println(err)
         return err
@@ -95,7 +107,7 @@ func (user *User) Update() error {
 
 func (user *User) Delete() error {
     filter := bson.D{{"_id", user._ID}}
-    _, err := db.Collection("users").DeleteOne(context.TODO(), filter)
+    _, err := dbUSERS.DeleteOne(context.TODO(), filter)
     if err != nil {
         log.Println(err)
         return err
@@ -103,29 +115,25 @@ func (user *User) Delete() error {
     return nil
 }
 
-func (user *User) Fandoms() []string {
-    var results []string
+func (user *User) Fandoms() []TrRole {
     var tr_roles []TrRole
 
     filter := bson.D{{"username", user.Id}}
-    cursor, err := db.Collection("tr_roles").Find(context.TODO(), filter)
+    cursor, err := dbTR_ROLES.Find(context.TODO(), filter)
     if err != nil {
         log.Println(err)
-        return []string{}
+        return []TrRole{}
     }
     cursor.All(context.TODO(), &tr_roles)
-    for _, tr := range tr_roles {
-        results = append(results, tr.Fandom)
-    }
-    log.Println(results)
+    log.Println(tr_roles)
 
-    return results
+    return tr_roles
 }
 
 // =====================================================================================================================
-// Listings
+// Translations
 
-func List_translations(fandoms []string) ([]Translation, error) {
+func (Translation) List(fandoms []string) ([]Translation, error) {
     var translations []Translation
     var filter bson.D
 
@@ -137,7 +145,7 @@ func List_translations(fandoms []string) ([]Translation, error) {
         filter = append(filter, bson.E{"fandom", f})
     }
 
-    cursor, err := db.Collection("translations").Find(context.TODO(), filter)
+    cursor, err := dbTRANSLATIONS.Find(context.TODO(), filter)
     if err != nil {
         log.Println(err)
         return translations, err
@@ -152,11 +160,7 @@ func List_translations(fandoms []string) ([]Translation, error) {
     return translations, nil
 }
 
-// =====================================================================================================================
-// Selects
-
-func Select_translation(id string) (Translation, error) {
-    var translation Translation
+func (tr *Translation) Select(id string) error {
     var filter primitive.D
     object_id, err := primitive.ObjectIDFromHex(id)
     if nil == err {
@@ -165,22 +169,49 @@ func Select_translation(id string) (Translation, error) {
         filter = bson.D{{"title", id}}
     }
 
-    err = db.Collection("translations").FindOne(context.TODO(), filter).Decode(&translation)
+    err = dbTRANSLATIONS.FindOne(context.TODO(), filter).Decode(tr)
     if err != nil {
         log.Println(err)
-        return translation, err
+        return err
     }
 
-    return translation, nil
+    return nil
 }
+
+func (tr *Translation) Add() error {
+    _, err := dbTRANSLATIONS.InsertOne(context.TODO(), tr)
+    return err
+}
+
+func (tr *Translation) Update() error {
+    _, err := dbTRANSLATIONS.UpdateByID(context.TODO(), tr.Id, tr)
+    if err != nil {
+        log.Println(err)
+        return err
+    }
+    return nil
+
+}
+
+func (tr *Translation) Delete() error {
+    filter := bson.D{{"_id", tr.Id}}
+    _, err := dbTRANSLATIONS.DeleteOne(context.TODO(), filter)
+    if err != nil {
+        log.Println(err)
+        return err
+    }
+    return nil
+}
+
+// =====================================================================================================================
+// Edits
 
 func Select_edit(id primitive.ObjectID, page int) ([]Edit_combined, error) {
     var edits []Edit
-    var snippets []Edit_snippet
     var ec []Edit_combined
 
     filter := bson.D{{"translationid", id}, {"page", page}}
-    cursor, err := db.Collection("edits").Find(context.TODO(), filter)
+    cursor, err := dbEDITS.Find(context.TODO(), filter)
     if nil != err {
         return ec, err
     }
@@ -190,17 +221,8 @@ func Select_edit(id primitive.ObjectID, page int) ([]Edit_combined, error) {
     }
 
     for _, edit := range edits {
-        filter = bson.D{{"edit", edit.Id}}
-        cursor, err = db.Collection("edit_snippets").Find(context.TODO(), filter)
-        if nil != err {
-            return ec, err
-        }
-
-        err = cursor.All(context.TODO(), &snippets)
-        if nil != err {
-            return ec, err
-        }
-
+        snip := Edit_snippet{}
+        snippets, _ := snip.SelectAll(edit.Id)
         ec = append(ec, Edit_combined{
             Edit: edit,
             Snippets: snippets,
@@ -208,4 +230,49 @@ func Select_edit(id primitive.ObjectID, page int) ([]Edit_combined, error) {
     }
 
     return ec, nil
+}
+
+func (edit *Edit) Add() error {
+    _, err := dbEDITS.InsertOne(context.TODO(), edit)
+    return err
+}
+
+// =====================================================================================================================
+// Snippets
+
+func (snip *Edit_snippet) SelectAll(editId primitive.ObjectID) ([]Edit_snippet, error) {
+    var snippets []Edit_snippet
+
+    filter := bson.D{{"edit", editId}}
+    cursor, err := dbEDIT_SNIPPETS.Find(context.TODO(), filter)
+    if nil != err {
+        return snippets, err
+    }
+
+    err = cursor.All(context.TODO(), &snippets)
+
+    return snippets, err
+}
+
+func (snip *Edit_snippet) Select(id primitive.ObjectID) error {
+    filter := bson.D{{"_id", id}}
+    err := dbEDIT_SNIPPETS.FindOne(context.TODO(), filter).Decode(snip)
+    return err
+}
+
+func (snip *Edit_snippet) Add() error {
+    _, err := dbEDIT_SNIPPETS.InsertOne(context.TODO(), snip)
+    return err
+}
+
+func (snip *Edit_snippet) Update() error {
+    _, err := dbEDIT_SNIPPETS.UpdateByID(context.TODO(), snip.Id, snip)
+    return err
+
+}
+
+func (snip *Edit_snippet) Delete() error {
+    filter := bson.D{{"_id", snip.Id}}
+    _, err := dbEDIT_SNIPPETS.DeleteOne(context.TODO(), filter)
+    return err
 }

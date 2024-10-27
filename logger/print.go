@@ -2,6 +2,7 @@ package logger
 
 import (
 	"fmt"
+	"runtime"
 )
 
 type colors struct {
@@ -56,7 +57,8 @@ type Logger struct {
 func (l Logger) begin() {
     fmt.Print(l.Color)
     if "" != l.Pretext {
-        fmt.Print("[" + l.Pretext + "]: ")
+        _, _, line, _ := runtime.Caller(2)
+        fmt.Printf("[%s:%d]: ", l.Pretext, line)
     }
 }
 

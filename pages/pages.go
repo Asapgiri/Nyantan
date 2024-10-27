@@ -1,14 +1,13 @@
 package pages
 
 import (
-    "os"
 	"io"
 	"net/http"
 	"nyantan/dbase"
 	"nyantan/logger"
 	"nyantan/logic"
 	"strconv"
-    "github.com/gorilla/sessions"
+    "nyantan/session"
 )
 
 var log = logger.Logger {
@@ -16,34 +15,9 @@ var log = logger.Logger {
     Pretext: "pages",
 }
 
-type sessioner struct {
-    Auth logic.Auth
-    Main string
-    Path string
-    Dto any
-}
-//FIXME: Handle fully separately in every function/session!!
-//var store = sessions.NewCookieStore([]byte(os.Getenv("SESSION_KEY")))
-var store = sessions.NewCookieStore([]byte(os.Getenv("NYANTAN_SESSION_KEY")))
-var session sessioner
-
-var artifact_path string = "artifacts/"
-var html_path string = "html/"
-var base_template_path string = html_path + "base.html"
-
-func authenticate(r *http.Request) {
-    // TODO: Add request aut header
-    real_session, _ := store.Get(r, "uname")
-    //log.Println(real_session)
-    uname, _ := real_session.Values["uname"].(string)
-
-    session.Auth.Username = uname
-    logic.Authenticate(&session.Auth)
-}
-
 func Base_auth_and_render(w http.ResponseWriter, r *http.Request, path string) (string, string) {
-    session.Path = r.URL.Path
-    authenticate(r)
+    session.SetPath(r.URL.Path)
+    session.Authenticate(r)
     return read_artifact(path, w.Header())
 }
 
@@ -65,22 +39,17 @@ func Login(w http.ResponseWriter, r *http.Request) {
     upass := r.FormValue("form[userPass]")
 
     if "" != uname {
-        if logic.Auth_login(uname, upass).Id != "" {
-            // FIXME: Store auth headers in database with associated user
-            rsess, _ := store.New(r, "uname")
-            log.Printf("session is: %s\n", rsess.ID)
-            rsess.Values["uname"] = uname
-            rsess.Save(r, w)
-            session.Auth.Username = uname
+        user := logic.Auth_login(uname, upass)
+        if user.Id != "" {
+            session.New(w, r, uname)
         } else {
-            session.Auth.Error = "Auth Error"
+            session.SetError("Auth Error")
         }
     } else {
-        session.Auth.Username = ""
-        session.Auth.Error = ""
+        session.SetError("")
     }
 
-    if "" == session.Auth.Username {
+    if "" == session.Get().Auth.Username {
         Render(w, fil, nil)
     } else {
         http.Redirect(w, r, "/", http.StatusSeeOther)
@@ -88,22 +57,21 @@ func Login(w http.ResponseWriter, r *http.Request) {
 }
 
 func Register(w http.ResponseWriter, r *http.Request) {
-    fil, _ := Base_auth_and_render(w, r, "login.html")
+    fil, _ := Base_auth_and_render(w, r, "register.html")
     uname := r.FormValue("form[userName]")
     upass := r.FormValue("form[userPass]")
 
     if "" != uname {
         if logic.Auth_register(uname, upass) {
-            session.Auth.Username = uname
+            session.New(w, r, uname)
         } else {
-            session.Auth.Error = "Cannot Register"
+            session.SetError("Cannot Register")
         }
     } else {
-        session.Auth.Username = ""
+        session.SetError("")
     }
-        session.Auth.Error = ""
 
-    if "" == session.Auth.Username {
+    if "" == session.Get().Auth.Username {
         Render(w, fil, nil)
     } else {
         http.Redirect(w, r, "/", http.StatusSeeOther)
@@ -112,7 +80,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 
 func Translate(w http.ResponseWriter, r *http.Request) {
     fil, _ := Base_auth_and_render(w, r, "translate.html")
-    translations, err := logic.List_translations(session.Auth)
+    translations, err := logic.List_translations(session.Get().Auth)
     if err != nil {
         log.Println(err)
     }
@@ -120,10 +88,8 @@ func Translate(w http.ResponseWriter, r *http.Request) {
 }
 
 func Logout(w http.ResponseWriter, r *http.Request) {
-    logic.Authenticate(&session.Auth)
-    rsess, _ := store.Get(r, "uname")
-    rsess.Options.MaxAge = -1
-    rsess.Save(r, w)
+    session.Authenticate(r)
+    session.Delete(w, r)
     http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
@@ -146,8 +112,10 @@ func base_error_render(w http.ResponseWriter, r *http.Request) {
 }
 
 func Translation(w http.ResponseWriter, r *http.Request) {
-    selected, err := dbase.Select_translation(r.PathValue("id"))
+    selected := dbase.Translation{}
+    err := selected.Select(r.PathValue("id"))
     if nil != err {
+        log.Println(err)
         base_error_render(w, r)
         return
     }
@@ -163,6 +131,7 @@ func Editor_list(w http.ResponseWriter, r *http.Request) {
 
     edits, err := logic.List_edits(id)
     if nil != err {
+        log.Println(err)
         base_error_render(w, r)
         return
     }
@@ -183,13 +152,15 @@ func Editor(w http.ResponseWriter, r *http.Request) {
     id := r.PathValue("id")
     page := r.PathValue("page")
 
-    selected, err := dbase.Select_translation(id)
+    selected := dbase.Translation{}
+    err := selected.Select(id)
     if nil != err {
+        log.Println(err)
         base_error_render(w, r)
         return
     }
 
-    if !logic.User_in_fandom(session.Auth, selected.Fandom) {
+    if !logic.User_in_fandom(session.Get().Auth, selected.Fandom) {
         base_error_render(w, r)
         return
     }
@@ -202,17 +173,20 @@ func Editor(w http.ResponseWriter, r *http.Request) {
 
     page_index, err := strconv.Atoi(page)
     if nil != err {
+        log.Println(err)
         base_error_render(w, r)
         return
     }
 
     edits, err := logic.Select_edit(id, page_index)
     if nil != err {
+        log.Println(err)
         base_error_render(w, r)
         return
     }
+
     edit_list := logic.Edit_list{
-        TransId:    selected.Id.String(),
+        TransId:    selected.Id.Hex(),
         // FIXME: sould be setted with prefixes and paths
         Title:      selected.Title,
         Link:       selected.Link,

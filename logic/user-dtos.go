@@ -1,8 +1,9 @@
 package logic
 
-import "nyantan/dbase"
-
-
+import (
+	"nyantan/dbase"
+	"time"
+)
 
 // =====================================================================================================================
 // Edit list
@@ -25,8 +26,11 @@ type accepter struct {
 }
 
 type Edit struct {
+    Id          string
     Rect        dbase.Rectangle
-    LastUpdate  int64
+    Index       int
+    Date        time.Time
+    LastUpdate  time.Time
     Accepter    string
     Accepted    bool
     Original    accepter
@@ -45,7 +49,8 @@ type Edit_list struct {
 
 type Edit_page_list_item struct {
     Page        int
-    LastUpdate  int64
+    Date        time.Time
+    LastUpdate  time.Time
     IImage      string
     Progress    dbase.Progress
     Users       []dbase.User

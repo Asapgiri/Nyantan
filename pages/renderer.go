@@ -4,11 +4,16 @@ import (
 	"bytes"
 	"io"
 	"net/http"
+	"nyantan/session"
 	"os"
 	"path/filepath"
 	"strings"
 	"text/template"
 )
+
+var artifact_path string = "artifacts/"
+var html_path string = "html/"
+var base_template_path string = html_path + "base.html"
 
 var file_types = map[string]string {
     "html": "text",
@@ -59,18 +64,18 @@ func Render(w http.ResponseWriter, temp string, dto any) {
         return
     }
 
-    session.Main = temp
-    session.Dto = dto
+    session.SetMain(temp)
+    session.SetDto(dto)
 
     var tpl bytes.Buffer
-    tmp.Execute(&tpl, session)
+    tmp.Execute(&tpl, session.Get())
     main, err := template.New("Main").Funcs(funcMap).Parse(tpl.String())
     if nil != err {
         io.WriteString(w, "Templating error 2!" + err.Error())
         return
     }
 
-    main.Execute(w, session)
+    main.Execute(w, session.Get())
 }
 
 // Prerender does not support session if you don't pass it...

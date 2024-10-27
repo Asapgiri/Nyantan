@@ -21,10 +21,12 @@ export NYANTAN_SESSION_KEY="1589334fcad0ddd6b393ce5bab75ed43" # random hash
         - [ ] Fandom (filter??)
     - [ ] Profile
     - [x] Login
+    - [x] Register
     - [ ] Edit
         - [x] List
         - [ ] Create/Upload
         - [ ] Translate
+            - [ ] Add versions/multiple
         - [ ] Proofreed
         - [ ] Check
 - [ ] Current page highlighting
@@ -33,8 +35,9 @@ export NYANTAN_SESSION_KEY="1589334fcad0ddd6b393ce5bab75ed43" # random hash
 - [ ] Backend user logic
 - [ ] Roles
 - [ ] Apis
-- [ ] Proper user auth
+- [x] Proper(ish) user auth
 - [x] Lazy load /translations drop down contents trough apis
 - [ ] Provide proper error messages
 - [ ] Solve TODO-s
 - [ ] Solve FEXME-s
+- [ ] Solve missing dates from places...

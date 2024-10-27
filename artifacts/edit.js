@@ -2,29 +2,65 @@ var canvas = document.getElementById('editor-canvas')
 var img    = document.getElementById('editor-img')
 var edits_wrapper = document.getElementById('edits-wrapper')
 var ctx    = canvas.getContext('2d')
+var classes = new Array("one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeem", "eighteen", "nineteen", "twenty", "twentyone", "twentytwo", "twentythree", "twentyfour");
 
 var canvasx = canvas.offsetLeft
 var canvasy = canvas.offsetTop
 var mousex = 0
 var mousey = 0
+var dragging = false
 var mousedown = false
 var mousedown_cnt = 0
 var editmode = false
+
 var last_rect = {
 	from: { x: 0, y: 0},
 	to:   { x: 0, y: 0}
 }
 var scale = 1
 
+var dragging_dragbar = false
+var drag_start = 0
+
+var oldPos = 0
+var newPos = 0
+var classInfo = ''
+$ewe = $('#edits-wrapper .edits')
+selectionHeight = $ewe.height() +
+                parseInt($ewe.css("border-bottom-width")) +
+                parseInt($ewe.css("border-top-width")) +
+                parseInt($ewe.css("padding-top")) +
+                parseInt($ewe.css("padding-bottom")) +
+                parseInt($ewe.css("margin-bottom"))
+
 function img_set() {
     canvas.width = img.width
     canvas.height = img.height
 
     ctx.drawImage(img, 0, 0)
+    reset_canvas()
 }
 
 img.addEventListener('load', img_set)
 img_set()
+
+function get_server_doc(url, ent) {
+    var xhttp = new XMLHttpRequest
+    xhttp.onreadystatechange = function() {
+        console.log(this.readyState)
+        console.log(this.status)
+        console.log(this.responseText)
+    }
+
+    urlStr = url + '?'
+    for (const entry of Object.entries(ent)) {
+        urlStr += entry[0] + "=" + entry[1] + "&"
+    }
+
+    console.log(urlStr)
+    xhttp.open("GET", urlStr, true)
+    xhttp.send();
+}
 
 function canvas_mousedown(e) {
     mousedown_cnt++
@@ -39,6 +75,7 @@ function canvas_mouseup(e) {
     mousedown = false
     last_rect.to.x = (parseInt(e.clientX-canvasx) + window.scrollX) * scale
     last_rect.to.y = (parseInt(e.clientY-canvasy) + window.scrollY) * scale
+
 }
 function canvas_mousemove(e) {
     mousex = (parseInt(e.clientX-canvasx) + window.scrollX) * scale;
@@ -49,7 +86,7 @@ function canvas_mousemove(e) {
         var width = mousex - last_rect.from.x;
         var height = mousey - last_rect.from.y;
         ctx.rect(last_rect.from.x,last_rect.from.y,width,height);
-        ctx.strokeStyle = 'black';
+        ctx.strokeStyle = 'red';
         ctx.lineWidth = 3;
         ctx.stroke();
     }
@@ -85,6 +122,7 @@ function toggle_edit_mode() {
     edit_toggle.blur()
     editmode = !editmode
     if (editmode) {
+        canvas.style.cursor = 'crosshair'
         canvas.onmousedown = canvas_mousedown
         canvas.onmouseup = canvas_mouseup
         canvas.onmousemove = canvas_mousemove
@@ -99,6 +137,7 @@ function toggle_edit_mode() {
         edit_next.hidden = false
     }
     else {
+        canvas.style.cursor = ''
         canvas.onmousedown = null
         canvas.onmouseup = null
         canvas.onmousemove =  null
@@ -116,9 +155,9 @@ function toggle_edit_mode() {
     mousedown_cnt = 0
 }
 
-function select_saved_rect(date_utc) {
+function select_saved_rect(id) {
     for (let i = 0; i < saved_rects.length; i++) {
-        if (date_utc == saved_rects[i].date) {
+        if (id == saved_rects[i].id) {
             return saved_rects[i]
         }
     }
@@ -126,8 +165,8 @@ function select_saved_rect(date_utc) {
 }
 
 function mouseenter(id) {
-    date_utc = id.split('-')[1]
-    rect = select_saved_rect(date_utc)
+    id_str = id.split('-')[1]
+    rect = select_saved_rect(id_str)
     if (rect.selected) return
 
     rect_holder = document.getElementById(id)
@@ -140,8 +179,8 @@ function mouseenter(id) {
 }
 
 function mouseleave(id) {
-    date_utc = id.split('-')[1]
-    rect = select_saved_rect(date_utc)
+    id_str = id.split('-')[1]
+    rect = select_saved_rect(id_str)
     if (rect.selected) return
 
     rect_holder = document.getElementById(id)
@@ -153,7 +192,83 @@ function mouseleave(id) {
     reset_canvas()
 }
 
-function rect_click(id) {
+$('#edits-wrapper .edits').each(function (index) {
+    $(this).addClass(classes[index]);
+    classInfo += '.' + classes[index] + ' {top: ' + index * selectionHeight + 'px;}\n';
+});
+
+var style = document.createElement('style');
+style.type = 'text/css';
+style.innerHTML = classInfo;
+document.getElementsByTagName('head')[0].appendChild(style);
+
+function find_pos($el) {
+    var maxlen = $('#edits-wrapper .edits').length
+    for (let i = 0; i < maxlen; i++) {
+        if ($el.hasClass(classes[i])) {
+            return i
+        }
+    }
+    return -1
+}
+
+$('.edits').mousedown(function (ev) {
+    dragging = true
+    $el = $(this)
+
+    console.log('selectionHeight', selectionHeight)
+    console.log('selectionHeight', $('#edits-wrapper .edits').height())
+    console.log('selectionHeight', parseInt($('#edits-wrapper .edits').css("border-bottom-width")))
+    console.log('selectionHeight', parseInt($('#edits-wrapper .edits').css("border-top-width")))
+    $el.addClass('top')
+
+
+    oldPos = find_pos($el)
+    newPos = oldPos
+    console.log('ref pos: ', oldPos, newPos)
+    startY = ev.clientY
+    startT = parseInt($el.css('top'))
+    console.log('startT from md: ', startT)
+})
+
+$('.edits').mousemove(function (ev) {
+    if (dragging) {
+        // ----- calculate new top
+        var newTop = startT + (ev.clientY - startY);
+        $el.css('cursor', 'pointer');
+        // ------
+
+        //------ stay in parent
+        var maxTop = $el.parent().height() - $el.height();
+        newTop = newTop < 0 ? 0 : newTop > maxTop ? maxTop : newTop;
+        $el.css('top', newTop);
+        //------
+
+        newPos = Math.round((newTop / selectionHeight));
+
+        if (oldPos != newPos && newPos >= 0 && newPos < $('#edits-wrapper .edits').length) {
+            console.log('move: ', oldPos, '->', newPos)
+            moveThings(oldPos, newPos, selectionHeight);
+            oldPos = newPos;
+        }
+    }
+}).mouseup(function (ev) {
+    dragging = false
+    $el = $(this)
+    $el.removeClass('top')
+    $el.css('top', '')
+})
+
+function moveThings(a, b, c) {
+    var c_first = classes[a]
+    var c_second = classes[b]
+    var first = $('#' + $('#edits-wrapper .' + c_first).attr('id'))
+    var second = $('#' + $('#edits-wrapper .' + c_second).attr('id'))
+
+    first.removeClass(c_first)
+    second.removeClass(c_second)
+    second.addClass(c_first)
+    first.addClass(c_second)
 }
 
 function save_rect() {
@@ -162,6 +277,8 @@ function save_rect() {
         return
     }
     var new_rect = {
+        index: saved_rects.length,
+        id: new Date().getTime(),
         date: new Date().getTime(),
         x: last_rect.from.x,
         y: last_rect.from.y,
@@ -175,6 +292,7 @@ function save_rect() {
 
     // TODO: Send back to server
     // TODO: Reload from server?
+    get_server_doc('/api' + window.location.pathname, new_rect)
 
     edits_wrapper.innerHTML += `
 <div class="mb-2 p-2 bg-white rounded box-shadow border border-gray" onmouseenter="mouseenter('rect-${new_rect.date}')" onmouseleave="mouseleave('rect-${new_rect.date}')" id="rect-${new_rect.date}" onclick="rect_click('rect-${new_rect.date}')">
@@ -219,8 +337,8 @@ function edit_next_rect() {
 }
 
 function select_rect(id) {
-    date_utc = id.split('-')[1]
-    rect = select_saved_rect(date_utc)
+    id_str = id.split('-')[1]
+    rect = select_saved_rect(id_str)
     if (rect.selected) return
     rect.selected = true
 
@@ -234,8 +352,8 @@ function select_rect(id) {
 }
 
 function deselect_rect(id) {
-    date_utc = id.split('-')[1]
-    rect = select_saved_rect(date_utc)
+    id_str = id.split('-')[1]
+    rect = select_saved_rect(id_str)
     rect.selected = false
 
     rect_holder = document.getElementById(id)
@@ -268,3 +386,29 @@ function select_translated(id, new_text) {
     select_datalist_object(id, new_text)
     // TODO: Send back to server
 }
+
+$('#dragbar').mousedown(function(e) {
+    e.preventDefault()
+    dragging_dragbar = true
+    drag_start = e.pageX
+    console.log('dragbar down', e.pageX)
+})
+
+$(document).mousemove(function(e) {
+    if (dragging_dragbar) {
+        let d_canvas = $('#canvas-outside-wrapper')
+        let d_editor = $('#edits-outside-wrapper')
+        let diff = drag_start - e.pageX
+        drag_start = e.pageX
+
+        d_canvas.width(d_canvas.width() - diff)
+        d_editor.width(d_editor.width() + diff)
+    }
+})
+
+$('#dragbar').mouseup(function(e) {
+    if (dragging_dragbar) {
+        console.log('dragbar up', e.pageX)
+        dragging_dragbar = false
+    }
+})

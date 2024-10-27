@@ -70,7 +70,7 @@ func User_in_fandom(a Auth, fandom string) bool {
     user.Find()
 
     for _, r := range user.Fandoms() {
-        if r == fandom {
+        if r.Fandom == fandom {
             return true
         }
     }

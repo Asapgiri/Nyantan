@@ -34,9 +34,6 @@
         <h5 class="mb-1 mt-2"><strong>Translators:</strong></h5>
         {{range .Users}}
         <a href="/user/{{.}}">@{{.}}</a>
-        {{range .Roles}}
-        <span class="badge bg-{{.Color}}">{{.Name}}</span>
-        {{end}}
         <br>
         {{end}}
     </div>

@@ -25,5 +25,6 @@ func setup_routes() {
     http.HandleFunc("GET /editor/{id}",         pages.Editor)
     http.HandleFunc("GET /editor/{id}/{page}",  pages.Editor)
 
-    http.HandleFunc("GET /api/translations/{id}", apis.Translations)
+    http.HandleFunc("GET /api/translations/{id}",   apis.Translations)
+    http.HandleFunc("GET /api/editor/{id}/{page}",  apis.AddEditSnippet)
 }
