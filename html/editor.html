@@ -1,4 +1,4 @@
-<div class="m-2 overflow-auto small row loaded" id="translation-{{.TransId}}">
+<div class="m-2 overflow-auto small row">
     <h2 class="col-md-12 my-2">
         <div class="btn-toolbar mb-3 justify-content-between" role="toolbar">
             {{if (gt .Page 0)}}
@@ -19,7 +19,9 @@
             {{end}}
         </div>
     </h2>
+</div>
 
+<div class="m-2 overflow-auto small row" id="translation-{{.TransId}}">
     <div class="col-md-6" id="canvas-outside-wrapper">
         <div id="canvas-inside-wrapper">
             <img id="editor-img" class="img-fluid" src="{{.Image}}" hidden>
@@ -28,60 +30,62 @@
         <div id="dragbar"></div>
     </div>
     <div class="col-md-6" id="edits-outside-wrapper">
-        <div class="mb-2 p-2 bg-white rounded box-shadow border border-gray">
-            <button hidden id="edit-next" class="btn btn-secondary btn-sm text-light" onclick="edit_next_rect()" style="width: 33%;"><b>Next</b></button>
-            <button hidden id="edit-save" class="btn btn-success btn-sm text-light" onclick="edit_save_rect()" style="width: 33%;"><b>Save</b></button>
-            <button id="edit-toggle" class="btn btn-info btn-sm text-light" onclick="toggle_edit_mode()" style="width: 100%;"><b>Add</b></button>
-        </div>
-
-        <div id="edits-wrapper">
-            {{range .Edits}}
-            {{$id := .Id}}
-            <div class="mb-2 p-2 bg-white rounded box-shadow border border-gray edits"
-                onmouseenter="mouseenter('rect-{{$id}}')"
-                onmouseleave="mouseleave('rect-{{$id}}')"
-                id="rect-{{$id}}">
-                <div>{{.Index}} Position: {{.Rect}}</div>
-
-                <div class="dropdown mt-2">
-                    <input
-                    {{if not .Original.List}}
-                    value=""
-                    {{else}}
-                    value="{{(index .Original.List .Original.SIndex).Text}}"
-                    {{end}}
-                           class="form-control dropdown-toggle"
-                           id="dropdown-original-{{$id}}"
-                           data-bs-toggle="dropdown"
-                           aria-expanded="false">
-                    <ul class="dropdown-menu dropdown-menu-dark p-0" aria-labelledby="dropdown-original-{{$id}}" id="dropdown-original-{{$id}}-dd" style="width: 100%;">
-                        {{range .Original.List}}
-                        <li><button class="dropdown-item border-top{{if .Selected}} active{{end}}" onclick="select_original('dropdown-original-{{$id}}', this.innerText)">{{.Text}}</button></li>
-                        {{end}}
-                    </ul>
-                </div>
-
-                <div class="dropdown mt-2">
-                    <input
-                    {{if not .Original.List}}
-                    value=""
-                    {{else}}
-                    value="{{(index .Translated.List .Translated.SIndex).Text}}"
-                    {{end}}
-                        class="form-control dropdown-toggle"
-                        id="dropdown-translated-{{$id}}"
-                        data-bs-toggle="dropdown"
-                        aria-expanded="false">
-                    <ul class="dropdown-menu dropdown-menu-dark p-0" aria-labelledby="dropdown-translated-{{$id}}" id="dropdown-translated-{{$id}}-dd" style="width: 100%;">
-                        {{range .Translated.List}}
-                        <li><button class="dropdown-item border-top{{if .Selected}} active{{end}}" onclick="select_translated('dropdown-translated-{{$id}}', this.innerText)">{{.Text}}</button></li>
-                        {{end}}
-                    </ul>
-                </div>
+        <div id="edits-inside-wrapper">
+            <div class="mb-2 p-2 bg-white rounded box-shadow border border-gray">
+                <button hidden id="edit-next" class="btn btn-secondary btn-sm text-light" onclick="edit_next_rect()" style="width: 33%;"><b>Next</b></button>
+                <button hidden id="edit-save" class="btn btn-success btn-sm text-light" onclick="edit_save_rect()" style="width: 33%;"><b>Save</b></button>
+                <button id="edit-toggle" class="btn btn-info btn-sm text-light" onclick="toggle_edit_mode()" style="width: 100%;"><b>Add</b></button>
             </div>
-            {{end}}
-        </div>
 
+            <div id="edits-wrapper">
+                {{range .Edits}}
+                {{$id := .Id}}
+                <div class="mb-2 p-2 bg-white rounded box-shadow border border-gray edits"
+                    onmouseenter="mouseenter('rect-{{$id}}')"
+                    onmouseleave="mouseleave('rect-{{$id}}')"
+                    id="rect-{{$id}}">
+                    <div>{{.Index}} Position: {{.Rect}}</div>
+
+                    <div class="dropdown mt-2">
+                        <input
+                        {{if not .Original.List}}
+                        value=""
+                        {{else}}
+                        value="{{(index .Original.List .Original.SIndex).Text}}"
+                        {{end}}
+                               class="form-control dropdown-toggle"
+                               id="dropdown-original-{{$id}}"
+                               data-bs-toggle="dropdown"
+                               aria-expanded="false">
+                        <ul class="dropdown-menu dropdown-menu-dark p-0" aria-labelledby="dropdown-original-{{$id}}" id="dropdown-original-{{$id}}-dd" style="width: 100%;">
+                            {{range .Original.List}}
+                            <li><button class="dropdown-item border-top{{if .Selected}} active{{end}}" onclick="select_original('dropdown-original-{{$id}}', this.innerText)">{{.Text}}</button></li>
+                            {{end}}
+                        </ul>
+                    </div>
+
+                    <div class="dropdown mt-2">
+                        <input
+                        {{if not .Original.List}}
+                        value=""
+                        {{else}}
+                        value="{{(index .Translated.List .Translated.SIndex).Text}}"
+                        {{end}}
+                            class="form-control dropdown-toggle"
+                            id="dropdown-translated-{{$id}}"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false">
+                        <ul class="dropdown-menu dropdown-menu-dark p-0" aria-labelledby="dropdown-translated-{{$id}}" id="dropdown-translated-{{$id}}-dd" style="width: 100%;">
+                            {{range .Translated.List}}
+                            <li><button class="dropdown-item border-top{{if .Selected}} active{{end}}" onclick="select_translated('dropdown-translated-{{$id}}', this.innerText)">{{.Text}}</button></li>
+                            {{end}}
+                        </ul>
+                    </div>
+                </div>
+                {{end}}
+            </div>
+
+        </div>
     </div>
 </div>
 

@@ -239,8 +239,6 @@ $('.edits').mousemove(function (ev) {
         // ------
 
         //------ stay in parent
-        var maxTop = $el.parent().height() - $el.height();
-        newTop = newTop < 0 ? 0 : newTop > maxTop ? maxTop : newTop;
         $el.css('top', newTop);
         //------
 
@@ -387,28 +385,34 @@ function select_translated(id, new_text) {
     // TODO: Send back to server
 }
 
+function drag_get_cursorX(e) {
+    return e.pageX - 2 // -2 for margin
+}
+
 $('#dragbar').mousedown(function(e) {
     e.preventDefault()
     dragging_dragbar = true
-    drag_start = e.pageX
-    console.log('dragbar down', e.pageX)
+    drag_start = drag_get_cursorX(e)
+    console.log('dragbar down', drag_get_cursorX(e))
 })
 
 $(document).mousemove(function(e) {
     if (dragging_dragbar) {
         let d_canvas = $('#canvas-outside-wrapper')
         let d_editor = $('#edits-outside-wrapper')
-        let diff = drag_start - e.pageX
-        drag_start = e.pageX
+        let panel_width = $('.row')[1].clientWidth
+        //let diff = drag_start - drag_get_cursorX(e)
+        drag_start = drag_get_cursorX(e)
+        let offset = 18
 
-        d_canvas.width(d_canvas.width() - diff)
-        d_editor.width(d_editor.width() + diff)
+        d_canvas.width(drag_get_cursorX(e) - offset)
+        d_editor.width(panel_width - drag_get_cursorX(e) - offset)
     }
 })
 
-$('#dragbar').mouseup(function(e) {
+$(document).mouseup(function(e) {
     if (dragging_dragbar) {
-        console.log('dragbar up', e.pageX)
+        console.log('dragbar up', drag_get_cursorX(e))
         dragging_dragbar = false
     }
 })
