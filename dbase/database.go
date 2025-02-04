@@ -97,7 +97,7 @@ func (user *User) Find() error {
 }
 
 func (user *User) Update() error {
-    _, err := dbUSERS.UpdateByID(context.TODO(), user._ID, user)
+    _, err := dbUSERS.ReplaceOne(context.TODO(), bson.D{{"_id", user._ID}}, user)
     if err != nil {
         log.Println(err)
         return err
@@ -184,7 +184,7 @@ func (tr *Translation) Add() error {
 }
 
 func (tr *Translation) Update() error {
-    _, err := dbTRANSLATIONS.UpdateByID(context.TODO(), tr.Id, tr)
+    _, err := dbTRANSLATIONS.ReplaceOne(context.TODO(), bson.D{{"_id", tr.Id}}, tr)
     if err != nil {
         log.Println(err)
         return err
@@ -266,7 +266,7 @@ func (snip *Edit_snippet) Add() error {
 }
 
 func (snip *Edit_snippet) Update() error {
-    _, err := dbEDIT_SNIPPETS.UpdateByID(context.TODO(), snip.Id, snip)
+    _, err := dbEDIT_SNIPPETS.ReplaceOne(context.TODO(), bson.D{{"_id", snip.Id}}, snip)
     return err
 
 }
